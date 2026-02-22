@@ -1,0 +1,32 @@
+[
+  {
+    "image": "images/hunt-or-be-hunted.png",
+    "text": "Hunt or be hunted",
+    "author": null,
+    "tags": ["stoic", "nature"]
+  },
+  {
+    "image": "images/fight-a-dragon.png",
+    "text": "If you have to fight a dragon, you should go to its lair before it comes to your village.",
+    "author": null,
+    "tags": ["stoic", "anime"]
+  },
+  {
+    "image": "images/blame-no-one.png",
+    "text": "He who blames others has a long way to go on his journey. He who blames himself is halfway there. He who blames no one has arrived.",
+    "author": "Chinese proverb",
+    "tags": ["stoic", "anime", "wisdom"]
+  },
+  {
+    "image": "images/all-defeat-is-psychological.png",
+    "text": "Until death, all defeat is psychological.",
+    "author": null,
+    "tags": ["stoic", "mindset"]
+  },
+  {
+    "image": "images/you-deserve-what-you-tolerate.png",
+    "text": "You deserve what you tolerate.",
+    "author": null,
+    "tags": ["stoic", "mindset"]
+  }
+]

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeverDoom</title>
+  <meta name="description" content="Your emergency calm button. A wall of motivational quotes to ground you when life hits hard.">
+  <meta property="og:title" content="NeverDoom">
+  <meta property="og:description" content="Your emergency calm button.">
+  <meta property="og:type" content="website">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scrollbar-color: #333 #0a0a0a;
+    }
+
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .fab-container {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .fab {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(20, 20, 20, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #aaa;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+      text-decoration: none;
+    }
+
+    .fab:hover {
+      background: rgba(30, 30, 30, 0.95);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: scale(1.08);
+    }
+
+    .fab:active {
+      transform: scale(0.95);
+    }
+
+    .fab-shuffle {
+      background: rgba(255, 68, 68, 0.2);
+      border-color: rgba(255, 68, 68, 0.3);
+      color: #ff6b6b;
+    }
+
+    .fab-shuffle:hover {
+      background: rgba(255, 68, 68, 0.35);
+      color: #ff9999;
+      border-color: rgba(255, 68, 68, 0.5);
+    }
+
+    .grid {
+      columns: 4;
+      column-gap: 12px;
+      padding: 12px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1200px) {
+      .grid { columns: 3; }
+    }
+
+    @media (max-width: 800px) {
+      .grid { columns: 2; column-gap: 8px; padding: 8px; }
+    }
+
+    @media (max-width: 480px) {
+      .grid { columns: 1; column-gap: 0; padding: 6px; }
+    }
+
+    .grid-item {
+      break-inside: avoid;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    @media (max-width: 800px) {
+      .grid-item { margin-bottom: 8px; }
+    }
+
+    .grid-item img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+
+    .grid-item:hover img {
+      transform: scale(1.03);
+      filter: brightness(1.1);
+    }
+
+    .grid-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      pointer-events: none;
+      transition: box-shadow 0.35s ease;
+    }
+
+    .grid-item:hover::after {
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+                  0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      cursor: zoom-out;
+    }
+
+    .lightbox.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 8px;
+      transform: scale(0.9);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: default;
+    }
+
+    .lightbox.active img {
+      transform: scale(1);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #fff;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .lightbox-nav:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .lightbox-prev { left: 1rem; }
+    .lightbox-next { right: 1rem; }
+
+    @media (max-width: 600px) {
+      .lightbox-nav { display: none; }
+    }
+
+    .lightbox-counter {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.85rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #555;
+    }
+
+    .empty h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <main class="grid" id="grid"></main>
+
+  <div class="fab-container">
+    <button class="fab fab-shuffle" onclick="shuffleGrid()" title="Shuffle">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+    </button>
+    <a href="https://github.com/alohe/neverdoom" target="_blank" rel="noopener" class="fab" title="GitHub">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+    </a>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+    <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)" aria-label="Previous">&lsaquo;</button>
+    <img id="lightbox-img" src="" alt="">
+    <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)" aria-label="Next">&rsaquo;</button>
+    <div class="lightbox-counter" id="lightbox-counter"></div>
+  </div>
+
+  <script>
+    let quotes = [];
+    let currentIndex = 0;
+
+    async function loadQuotes() {
+      try {
+        const res = await fetch('quotes.json');
+        quotes = await res.json();
+        renderGrid();
+      } catch (e) {
+        document.getElementById('grid').innerHTML =
+          '<div class="empty"><h2>Could not load quotes</h2><p>Make sure quotes.json exists.</p></div>';
+      }
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('grid');
+      if (quotes.length === 0) {
+        grid.innerHTML = '<div class="empty"><h2>No quotes yet</h2><p>Be the first to contribute!</p></div>';
+        return;
+      }
+
+      grid.innerHTML = quotes.map((q, i) => `
+        <div class="grid-item" style="animation-delay: ${i * 0.06}s" onclick="openLightbox(${i})">
+          <img
+            src="${q.image}"
+            alt="${q.text || 'Motivational quote'}"
+            loading="lazy"
+            draggable="false"
+          >
+        </div>
+      `).join('');
+    }
+
+    function shuffleGrid() {
+      for (let i = quotes.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [quotes[i], quotes[j]] = [quotes[j], quotes[i]];
+      }
+      renderGrid();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openLightbox(index) {
+      currentIndex = index;
+      updateLightboxImage();
+      document.getElementById('lightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function navigateLightbox(dir) {
+      currentIndex = (currentIndex + dir + quotes.length) % quotes.length;
+      updateLightboxImage();
+    }
+
+    function updateLightboxImage() {
+      const q = quotes[currentIndex];
+      const img = document.getElementById('lightbox-img');
+      img.src = q.image;
+      img.alt = q.text || 'Motivational quote';
+      document.getElementById('lightbox-counter').textContent =
+        `${currentIndex + 1} / ${quotes.length}`;
+    }
+
+    document.getElementById('lightbox').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const lb = document.getElementById('lightbox');
+      if (!lb.classList.contains('active')) return;
+
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navigateLightbox(-1);
+      if (e.key === 'ArrowRight') navigateLightbox(1);
+    });
+
+    let touchStartX = 0;
+    document.getElementById('lightbox').addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.getElementById('lightbox').addEventListener('touchend', (e) => {
+      const diff = e.changedTouches[0].screenX - touchStartX;
+      if (Math.abs(diff) > 50) {
+        navigateLightbox(diff > 0 ? -1 : 1);
+      }
+    }, { passive: true });
+
+    loadQuotes();
+  </script>
+</body>
+</html>
